@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE MinSizeRel)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
-include(pico_sdk_import.cmake)
+include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
 
 project(usk C CXX ASM)
 
@@ -16,7 +16,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(usk main.c board_detect.c fuses.c pio_upload.c boot_detect.c config.c misc.c payload.c glitch.c)
+add_executable(usk main.c board_detect.c fuses.c pio_upload.c boot_detect.c config.c misc.c payload.c glitch.c leds.c)
 
 target_compile_definitions(usk PRIVATE PICO_NO_BINARY_INFO)
 
@@ -39,7 +39,12 @@ target_link_libraries(usk
         hardware_pio
         hardware_adc
         hardware_flash
+        hardware_i2c
+        pico_i2c_slave
         )
 
 pico_add_extra_outputs(usk)
 
+# Enable usb output, disable uart output
+pico_enable_stdio_usb(usk 1)
+pico_enable_stdio_uart(usk 0)

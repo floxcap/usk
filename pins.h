@@ -3,7 +3,8 @@
 #define PIN_GLI_PICO 21
 #define PIN_GLI_ITSY 24
 
-#define PIN_LED_WS 16
+//#define PIN_LED_WS 16
+#define PIN_LED_WS 29
 #define PIN_LED_ITSY 17
 #define PIN_LED_XIAO 12
 #define PIN_LED_PICO 25
@@ -28,6 +29,10 @@
 #define PIN_LED_PWR_ITSY 16
 
 #define PIN_RGB_MODE_WS 25
+
+// fly2040 solder jumpers
+#define PIN_I2C_MODE_LV 2
+#define PIN_I2C_MODE_LEDS 3
 
 #define PIN_DAT 29
 #define PIN_CMD 28

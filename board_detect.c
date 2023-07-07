@@ -18,6 +18,8 @@ enum board_type {
 };
 
 enum board_type cur_board = BOARD_WS;
+bool _jmp_lv = false;
+bool _jmp_leds = false;
 
 bool detect_by_pull_up(int frc_pin, int det_pin)
 {
@@ -62,6 +64,28 @@ bool test_sqc()
     return detect_by_pull_up(-1, 17);
 }
 
+// Test low voltage (I2C) jumper.
+// Default to true for boards without jumper.
+bool test_jmp_lv()
+{
+    int pin = jmp_lv_pin();
+    if (pin < 0)
+        return true;
+
+    return detect_by_pull_up(-1, pin);
+}
+
+// Test for I2C slave mode for RGB leds.
+// Default to false for boards without jumper.
+bool test_jmp_leds()
+{
+    int pin = jmp_leds_pin();
+    if (pin < 0)
+        return false;
+
+    return detect_by_pull_up(-1, pin);
+}
+
 void detect_board()
 {
     gpio_pull_down(PIN_GLI_WS);
@@ -82,6 +106,9 @@ void detect_board()
     } else {
         cur_board = BOARD_WS;
     }
+
+    _jmp_lv = test_jmp_lv();
+    _jmp_leds = test_jmp_leds();
 }
 
 int led_pin()
@@ -154,6 +181,44 @@ int gli_pin()
         default:
             return PIN_GLI_WS;
     }; 
+}
+
+int jmp_lv_pin()
+{
+    switch(cur_board) {
+        case BOARD_WS:
+            return PIN_I2C_MODE_LV;
+
+        case BOARD_XO:
+        case BOARD_IB:
+        case BOARD_PI:
+        default:
+            return -1;
+    }
+}
+
+int jmp_leds_pin()
+{
+    switch(cur_board) {
+        case BOARD_WS:
+            return PIN_I2C_MODE_LEDS;
+
+        case BOARD_XO:
+        case BOARD_IB:
+        case BOARD_PI:
+        default:
+            return -1;
+    }
+}
+
+bool is_jmp_lv()
+{
+    return _jmp_lv;
+}
+
+bool is_jmp_leds()
+{
+    return _jmp_leds;
 }
 
 bool is_pico()

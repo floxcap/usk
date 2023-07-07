@@ -9,3 +9,8 @@ int led_pin();
 bool is_pico();
 int scl_pin();
 int sda_pin();
+int jmp_lv_pin();
+int jmp_leds_pin();
+
+bool is_jmp_lv();
+bool is_jmp_leds();

@@ -18,13 +18,16 @@
 #include "fuses.h"
 #include "pio_upload.h"
 #include "pins.h"
+#include "leds.h"
+
+extern bool was_self_reset;
 
 bool write_payload();
 
 // overclock to 300 MHz
 void init_system() {
     vreg_set_voltage(VREG_VOLTAGE_1_30);
-	set_sys_clock_khz(300000, true);
+	set_sys_clock_khz(200000, true);
 }
 
 // filled within "fast check" on eMMC init
@@ -80,8 +83,6 @@ void self_test()
     }
 }
 
-extern bool was_self_reset;
-
 int main()
 {
     // stop watchdog
@@ -89,11 +90,15 @@ int main()
     // init reset, mosfet and LED
     detect_board();
     // clocks & voltage
-	init_system();
+	//init_system();
     // fuses counter
     init_fuses();
     // LED & glitch & emmc PIO
     upload_pio();
+
+    //TODO: remove shortcut...
+    leds_mode();
+
     // check if this is the very first start
     if (watchdog_caused_reboot() && boot_try == 0)
 	{
@@ -156,7 +161,7 @@ int main()
                 burn_fuse();
             }
             add_boot_record(offset);
-            halt_with_error(0, 1);
+            leds_mode();
         }
         if (full_try == 0) {
             rewrite_payload();

@@ -7,6 +7,7 @@
 #include "glitch.h"
 #include <stdio.h>
 #include "misc.h"
+#include "leds.h"
 #include "board_detect.h"
 #include "hardware/structs/rosc.h"
 

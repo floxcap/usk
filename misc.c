@@ -6,9 +6,8 @@
 #include "ws2812.pio.h"
 #include "board_detect.h"
 #include "misc.h"
+#include "leds.h"
 #include "board_detect.h"
-
-extern int ws_pio_offset;
 
 #define BLINK_TIME 700
 #define SHORT_TIME ( BLINK_TIME * 2 / 10 )
@@ -66,7 +65,7 @@ void finish_pins_leds() {
     gpio_disable_input_output(pwr_pin());
 }
 
-void halt_with_error(uint32_t err, uint32_t bits)
+void display_error(uint32_t err, uint32_t bits)
 {
     finish_pins_except_leds();
     pio_set_sm_mask_enabled(pio0, 0xF, false);
@@ -100,36 +99,13 @@ void halt_with_error(uint32_t err, uint32_t bits)
         if (bits == 1)
             break;
     }
-    finish_pins_leds();
-    zzz();
 }
 
-void put_pixel(uint32_t pixel_grb)
+void halt_with_error(uint32_t err, uint32_t bits)
 {
-    static bool led_enabled = false;
-    if (is_pico())
-    {
-        gpio_init(led_pin());
-        if (pixel_grb) {
-            gpio_set_dir(led_pin(), true);
-            gpio_put(led_pin(), 1);
-        }
-        return;
-    }
-    ws2812_program_init(pio0, 3, ws_pio_offset, led_pin(), 800000, true);
-    if (!led_enabled && pwr_pin() != 31)
-    {
-        led_enabled = true;
-        gpio_init(pwr_pin());
-        gpio_set_drive_strength(pwr_pin(), GPIO_DRIVE_STRENGTH_12MA);
-        gpio_set_dir(pwr_pin(), true);
-        gpio_put(pwr_pin(), 1);
-        sleep_us(200);
-    }
-    pio_sm_put_blocking(pio0, 3, pixel_grb << 8u);
-    sleep_us(50);
-    pio_sm_set_enabled(pio0, 3, false);
-    gpio_init(led_pin());
+    display_error(err, bits);
+    finish_pins_leds();
+    zzz();
 }
 
 void gpio_disable_input_output(int pin)
